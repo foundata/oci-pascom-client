@@ -1,4 +1,4 @@
-# OCI image: PASCOM client (for non-Ubuntu Linux hosts)
+# OCI Image: PASCOM client (for non-Ubuntu Linux hosts)
 
 The [PASCOM desktop client]((https://www.pascom.net/downloads/)) for Linux is only supported on [Ubuntu](https://ubuntu.com/) (as 2026-Q3). This project packages the official PASCOM client in an Ubuntu LTS based [OCI](https://opencontainers.org/) container so it can also be used on other Linux distributions like [Fedora](https://fedoraproject.org/).
 
