@@ -55,7 +55,12 @@ Flatpak was tried and might be an attractive long-term (portals are first-class,
 - `plugins/`, `qml/`: Qt plugins, including platform plugins `libqwayland.so` and `libqxcb.so` and the platform themes `libqgtk3.so` and `libqxdgdesktopportal.so` (the latter enables the portal integration used here).
 - `update.sh`: self-updater (intentionally defunct in the image, see [below](#design-updater)).
 - `create-starter.sh`: generates a `.desktop` entry for a native installation; not used here (a container-aware one is shipped instead). Noteworthy detail from it: the window class is `net.pascom.pascom_Client` on Wayland and `pascom_Client` on X11.
-- `pascom-configure-jabraheadset.sh`, `pascom-configure-kuando-busylight.sh`: install udev rules for HID call control devices; out of scope (see [README limitations](README.md#limitations)).
+- `pascom-configure-jabraheadset.sh`, `pascom-configure-kuando-busylight.sh`: install udev rules for HID call control devices (call buttons, busylight via `/dev/hidraw*`; the client uses the bundled `libjabra` for this). Out of scope (see [README limitations](README.md#limitations)) because it conflicts with the project's "unprivileged, no host changes" design:
+  - udev rules are inherently host-side and need root; a container cannot provide them. Without them the `hidraw` nodes are `root:root 0600`, and `--userns=keep-id` gives the container exactly the host user's (lack of) access.
+  - Passing all of `/dev/hidraw*` would also expose unrelated HID devices (e.g. FIDO2 security keys) to the proprietary client; a safe implementation must filter by USB vendor ID via `/sys/class/hidraw`.
+  - Hotplug: `podman run --device` snapshots devices at start; a replugged headset re-enumerates as a new `hidrawN` the running container cannot see. Rootless Podman has no `--device-cgroup-rule` and cannot `mknod`, so replugging would require a client restart.
+  - `libjabra` enumerates via libudev; without a udev daemon in the container this likely needs `/run/udev/data` mounted read-only, and verification requires the physical hardware.
+  - Plain headset audio (including Bluetooth) works without any of this, see [gotchas](#gotchas).
 - The binary uses the PulseAudio client API directly for device enumeration (`pa_context_get_sink_info_list`, `pa_context_get_source_info_list`), while PJSIP handles the actual audio streams via ALSA. Both paths must therefore work in the container.
 
 
