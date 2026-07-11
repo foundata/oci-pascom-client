@@ -1,0 +1,16 @@
+# Desktop entry for the containerized PASCOM client. Copy this file to
+# ~/.local/share/applications/ and make sure pascom-client.sh is in your PATH
+# (e.g. ~/.local/bin/), see README.md ("Desktop integration").
+#
+# SPDX-FileCopyrightText: foundata GmbH <https://foundata.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+[Desktop Entry]
+Type=Application
+Name=PASCOM Client
+Comment=PASCOM softphone client (running in an OCI container)
+Exec=pascom-client.sh
+Icon=pascom-client
+Terminal=false
+Categories=Network;Telephony;
+StartupWMClass=net.pascom.pascom_Client

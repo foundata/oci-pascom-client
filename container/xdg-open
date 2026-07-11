@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+# Minimal xdg-open replacement for use inside the container: asks the host's
+# XDG desktop portal (via the bind-mounted session D-Bus socket) to open the
+# given URL, so links and the pascom login page open in the host's default
+# browser instead of failing inside the container.
+#
+# See https://flatpak.github.io/xdg-desktop-portal/docs/doc-org.freedesktop.portal.OpenURI.html
+#
+# SPDX-FileCopyrightText: foundata GmbH <https://foundata.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+set -eu
+
+if [ "$#" -ne 1 ]; then
+    printf 'Usage: %s <URL>\n' "${0##*/}" >&2
+    exit 1
+fi
+
+uri="${1}"
+
+# Turn bare "www.example.com" style arguments into proper URLs (same
+# convenience behavior as the real xdg-open).
+case "${uri}" in
+    *://*|mailto:*|tel:*) ;;
+    *) uri="https://${uri}" ;;
+esac
+
+if gdbus call --session \
+    --dest "org.freedesktop.portal.Desktop" \
+    --object-path "/org/freedesktop/portal/desktop" \
+    --method "org.freedesktop.portal.OpenURI.OpenURI" \
+    "" "${uri}" "{}" > /dev/null 2>&1
+then
+    exit 0
+fi
+
+# Fallback for debugging or hosts without a running xdg-desktop-portal:
+# print the URL so the user can open it manually.
+printf 'Could not reach the XDG desktop portal on the host.\n' >&2
+printf 'Please open the following URL manually:\n\n  %s\n\n' "${uri}" >&2
+exit 3
