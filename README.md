@@ -98,12 +98,19 @@ podman run --rm --entrypoint cat localhost/pascom-client:latest \
   /opt/pascom_Client/client.png \
   > ~/.local/share/icons/hicolor/256x256/apps/pascom-client.png
 
-# Install the desktop entry
+# Install the desktop entry (with an absolute Exec path: the desktop
+# session's PATH often does not include ~/.local/bin, e.g. on Fedora)
 mkdir -p ~/.local/share/applications
-cp pascom-client.desktop ~/.local/share/applications/
+sed "s|^Exec=.*|Exec=${HOME}/.local/bin/pascom-client.sh|" pascom-client.desktop \
+  > ~/.local/share/applications/pascom-client.desktop
+desktop-file-validate ~/.local/share/applications/pascom-client.desktop
+update-desktop-database ~/.local/share/applications/
 ```
 
-Note: The tray icon uses the StatusNotifier D-Bus protocol. On GNOME, this additionally requires an extension like [AppIndicator and KStatusNotifierItem Support](https://extensions.gnome.org/extension/615/appindicator-support/) (as it does for the client on Ubuntu, too).
+Notes:
+
+- The tray icon uses the StatusNotifier D-Bus protocol. On GNOME, this additionally requires an extension like [AppIndicator and KStatusNotifierItem Support](https://extensions.gnome.org/extension/615/appindicator-support/) (as it does for the client on Ubuntu, too).
+- Closing the window only hides the client (it keeps running for incoming calls). Quit it via the tray icon's context menu, or run `podman stop pascom-client` if no tray icon is available.
 
 
 ### Updating the client<a id="usage-update"></a>

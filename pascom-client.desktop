@@ -1,6 +1,7 @@
-# Desktop entry for the containerized PASCOM client. Copy this file to
-# ~/.local/share/applications/ and make sure pascom-client.sh is in your PATH
-# (e.g. ~/.local/bin/), see README.md ("Desktop integration").
+# Desktop entry for the containerized PASCOM client. Install it to
+# ~/.local/share/applications/ with Exec= rewritten to the absolute path of
+# pascom-client.sh (the desktop session's PATH often does not include
+# ~/.local/bin), see README.md ("Desktop integration").
 #
 # SPDX-FileCopyrightText: foundata GmbH <https://foundata.com>
 # SPDX-License-Identifier: GPL-3.0-or-later
